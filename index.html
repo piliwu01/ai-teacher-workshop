@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="60 分鐘教師 AI 研習互動式 HTML 簡報，涵蓋備課、出題、簡報與安全查核。">
+  <title>AI 教師工作術｜60 分鐘教師研習</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ff756b'/%3E%3Cpath d='M16 43 27 15h10l11 28h-9l-2-7H27l-2 7Zm13-14h6l-3-10Z' fill='%23152f46'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* =========================================================
+       主題設定：手繪科技實驗室
+       修改下列色票即可調整整份簡報的視覺。
+       ========================================================= */
+    :root {
+      --ink: #152f46;
+      --ink-soft: #587083;
+      --paper: #fffaf0;
+      --panel: #ffffff;
+      --coral: #ff756b;
+      --coral-dark: #d94e48;
+      --mint: #a8e6cf;
+      --mint-dark: #0d8179;
+      --yellow: #ffcf6e;
+      --blue: #95d8ff;
+      --line: #152f46;
+      --shadow: rgba(21, 47, 70, .16);
+      --font: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+      --title-size: clamp(2.2rem, 6vw, 5.7rem);
+      --h2-size: clamp(1.55rem, 3.8vw, 3.4rem);
+      --h3-size: clamp(.95rem, 2vw, 1.45rem);
+      --body-size: clamp(.78rem, 1.45vw, 1.18rem);
+      --small-size: clamp(.64rem, 1.05vw, .9rem);
+      --slide-padding: clamp(1.1rem, 4vw, 4rem);
+      --gap: clamp(.55rem, 1.7vw, 1.35rem);
+      --ease: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; overflow-x: hidden; }
+    html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font);
+      overscroll-behavior-y: contain;
+    }
+    button { font: inherit; }
+    button:focus-visible, .nav-dot:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+
+    /* =========================================================
+       每一張投影片固定等於一個 viewport，禁止投影片內捲動。
+       ========================================================= */
+    .slide {
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      isolation: isolate;
+    }
+    .slide-content {
+      flex: 1;
+      width: min(1180px, 100%);
+      max-height: 100%;
+      margin: 0 auto;
+      padding: var(--slide-padding);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: var(--gap);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+    .slide::before, .slide::after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      border: clamp(2px, .25vw, 4px) solid var(--line);
+      opacity: .98;
+    }
+    .slide::before {
+      width: clamp(130px, 22vw, 340px);
+      aspect-ratio: 1;
+      border-radius: 44% 56% 63% 37% / 51% 42% 58% 49%;
+      right: -8vw;
+      top: -12vw;
+      background: var(--mint);
+      transform: rotate(10deg);
+    }
+    .slide::after {
+      width: clamp(90px, 14vw, 210px);
+      aspect-ratio: 1;
+      border-radius: 58% 42% 35% 65% / 42% 48% 52% 58%;
+      left: -5vw;
+      bottom: -7vw;
+      background: var(--yellow);
+      transform: rotate(-14deg);
+    }
+    .slide:nth-of-type(3n)::before { background: var(--blue); }
+    .slide:nth-of-type(4n)::after { background: var(--coral); }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: var(--title-size); line-height: .98; letter-spacing: -.055em; font-weight: 900; }
+    h2 { font-size: var(--h2-size); line-height: 1.08; letter-spacing: -.035em; font-weight: 900; }
+    h3 { font-size: var(--h3-size); line-height: 1.2; font-weight: 900; }
+    p, li { font-size: var(--body-size); line-height: 1.55; }
+    small, .small { font-size: var(--small-size); line-height: 1.45; }
+    strong { font-weight: 900; }
+    .muted { color: var(--ink-soft); }
+    .accent { color: var(--coral-dark); }
+    .mint-text { color: var(--mint-dark); }
+    .eyebrow { color: var(--coral-dark); font-weight: 900; letter-spacing: .13em; font-size: var(--small-size); }
+    .lead { max-width: 850px; color: var(--ink-soft); font-size: clamp(.92rem, 2vw, 1.5rem); }
+    .slide-no { position: absolute; top: var(--slide-padding); right: var(--slide-padding); font-weight: 900; font-size: var(--small-size); color: var(--mint-dark); }
+
+    .window {
+      background: var(--panel);
+      border: clamp(2px, .25vw, 4px) solid var(--line);
+      border-radius: clamp(18px, 2.4vw, 36px);
+      padding: clamp(1rem, 2.4vw, 2rem);
+      box-shadow: 0 clamp(8px, 1.4vw, 18px) 0 var(--coral);
+      max-height: min(78vh, 720px);
+      overflow: hidden;
+    }
+    .window-bar { display: flex; gap: .5rem; margin-bottom: clamp(.7rem, 1.5vw, 1.2rem); }
+    .window-bar i { width: clamp(9px, 1.2vw, 14px); aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--line); }
+    .window-bar i:nth-child(1) { background: var(--coral); }
+    .window-bar i:nth-child(2) { background: var(--yellow); }
+    .window-bar i:nth-child(3) { background: var(--mint); }
+
+    .grid { display: grid; gap: var(--gap); width: 100%; align-items: stretch; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card {
+      min-width: 0;
+      border: clamp(2px, .2vw, 3px) solid var(--line);
+      border-radius: clamp(14px, 1.8vw, 24px);
+      padding: clamp(.75rem, 1.7vw, 1.4rem);
+      background: var(--panel);
+      box-shadow: clamp(4px, .6vw, 8px) clamp(4px, .6vw, 8px) 0 var(--shadow);
+      overflow: hidden;
+    }
+    .card.coral { background: #fff0ec; }
+    .card.mint { background: #e9fbf4; }
+    .card.yellow { background: #fff6d9; }
+    .card.blue { background: #e9f6ff; }
+    .card .num { font-size: clamp(1.4rem, 3.8vw, 3.3rem); font-weight: 900; line-height: 1; color: var(--coral-dark); }
+    .card p { margin-top: .35rem; }
+    .pill { display: inline-flex; align-items: center; gap: .35rem; border: 2px solid var(--line); border-radius: 999px; padding: .32rem .75rem; font-size: var(--small-size); font-weight: 900; background: var(--yellow); }
+    .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .chip { border: 2px solid var(--line); border-radius: 999px; padding: .35rem .72rem; background: #fff; font-size: var(--small-size); font-weight: 700; }
+    .prompt {
+      border: clamp(2px, .22vw, 3px) solid var(--line);
+      border-radius: 20px;
+      padding: clamp(.8rem, 2vw, 1.5rem);
+      background: #fff;
+      font-size: clamp(.76rem, 1.35vw, 1.05rem);
+      line-height: 1.65;
+      box-shadow: 8px 8px 0 var(--blue);
+    }
+    .prompt mark { background: var(--yellow); color: var(--ink); padding: .05em .25em; border-radius: .3em; }
+    .checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: clamp(.25rem, 1vh, .7rem); }
+    .checklist li { display: flex; gap: .55rem; align-items: flex-start; }
+    .checklist li::before { content: '□'; color: var(--coral-dark); font-weight: 900; }
+    .compare { display: grid; grid-template-columns: .8fr 1.2fr; gap: 2px; border: 2px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--line); }
+    .compare > div { background: #fff; padding: clamp(.65rem, 1.5vw, 1.15rem); font-size: var(--body-size); }
+    .compare > div:nth-child(4n+1), .compare > div:nth-child(4n+2) { background: #fff5db; }
+
+    .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+    .step { position: relative; padding-top: 1.3rem; }
+    .step::before { content: ''; position: absolute; left: 0; top: .4rem; width: 100%; height: 4px; background: var(--ink); }
+    .step::after { content: ''; position: absolute; left: 0; top: 0; width: .95rem; aspect-ratio: 1; border-radius: 50%; background: var(--coral); border: 3px solid var(--line); }
+    .step .time { font-weight: 900; color: var(--coral-dark); font-size: var(--small-size); }
+
+    .bar-chart { display: grid; gap: clamp(.55rem, 1.3vw, 1rem); }
+    .bar-row { display: grid; grid-template-columns: minmax(100px, 1.3fr) 4fr; gap: .7rem; align-items: center; }
+    .bar-label { font-size: var(--small-size); font-weight: 700; }
+    .bar-track { height: clamp(22px, 4vh, 38px); border: 2px solid var(--line); border-radius: 999px; background: #fff; overflow: hidden; display: flex; }
+    .bar-seg { height: 100%; display: grid; place-items: center; font-size: var(--small-size); font-weight: 900; border-right: 2px solid var(--line); }
+    .bar-seg:last-child { border-right: 0; }
+    .seg-a { background: var(--coral); }
+    .seg-b { background: var(--mint); }
+    .seg-c { background: var(--yellow); }
+    .legend { display: flex; flex-wrap: wrap; gap: .8rem; font-size: var(--small-size); }
+    .legend span::before { content: ''; display: inline-block; width: .8rem; aspect-ratio: 1; border: 2px solid var(--line); margin-right: .35rem; vertical-align: -.1rem; }
+    .legend span:nth-child(1)::before { background: var(--coral); }
+    .legend span:nth-child(2)::before { background: var(--mint); }
+    .legend span:nth-child(3)::before { background: var(--yellow); }
+
+    .flow { display: flex; align-items: center; justify-content: center; gap: clamp(.4rem, 1.2vw, 1rem); flex-wrap: wrap; }
+    .flow-item { border: 3px solid var(--line); background: #fff; border-radius: 18px; padding: .65rem 1rem; font-weight: 900; font-size: var(--body-size); }
+    .flow-arrow { font-weight: 900; color: var(--coral-dark); font-size: clamp(1.2rem, 3vw, 2.3rem); }
+    .quote { font-size: clamp(1.5rem, 4.2vw, 3.8rem); line-height: 1.18; font-weight: 900; letter-spacing: -.03em; max-width: 980px; }
+    .quote em { font-style: normal; color: var(--coral-dark); text-decoration: underline wavy var(--mint-dark); text-underline-offset: .18em; }
+
+    /* 進場動畫 */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .62s var(--ease), transform .62s var(--ease); }
+    .visible .reveal { opacity: 1; transform: none; }
+    .visible .reveal:nth-child(2) { transition-delay: .08s; }
+    .visible .reveal:nth-child(3) { transition-delay: .16s; }
+    .visible .reveal:nth-child(4) { transition-delay: .24s; }
+    .visible .reveal:nth-child(5) { transition-delay: .32s; }
+    .cursor { display: inline-block; width: .11em; height: .88em; background: var(--coral); vertical-align: -.04em; animation: blink .8s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* 固定導覽介面 */
+    .progress { position: fixed; z-index: 30; left: 0; top: 0; height: 5px; width: 0; background: var(--coral); transition: width .25s ease; }
+    .nav-dots { position: fixed; z-index: 30; right: clamp(.45rem, 1.2vw, 1rem); top: 50%; transform: translateY(-50%); display: grid; gap: clamp(.22rem, .55vh, .4rem); }
+    .nav-dot { width: clamp(8px, 1vw, 12px); aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 50%; padding: 0; background: #fff; cursor: pointer; transition: transform .2s, background .2s; }
+    .nav-dot.active { background: var(--coral); transform: scale(1.35); }
+    .hud { position: fixed; z-index: 30; left: clamp(.6rem, 1.4vw, 1.2rem); bottom: clamp(.55rem, 1.2vw, 1rem); display: flex; gap: .45rem; align-items: center; }
+    .hud button, .hud .counter { border: 2px solid var(--ink); background: rgba(255,250,240,.94); color: var(--ink); border-radius: 999px; min-height: 36px; padding: .35rem .7rem; font-weight: 900; font-size: var(--small-size); box-shadow: 3px 3px 0 var(--shadow); }
+    .hud button { cursor: pointer; }
+
+    .overlay { position: fixed; z-index: 60; inset: 0; background: rgba(21,47,70,.72); display: none; place-items: center; padding: 1rem; }
+    .overlay.open { display: grid; }
+    .overlay-panel { width: min(720px, 94vw); max-height: 84vh; overflow: auto; background: var(--paper); border: 3px solid var(--ink); border-radius: 24px; box-shadow: 12px 12px 0 var(--coral); padding: clamp(1rem, 3vw, 2rem); }
+    .overlay-head { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+    .close { border: 2px solid var(--ink); background: var(--coral); border-radius: 50%; width: 38px; aspect-ratio: 1; cursor: pointer; font-weight: 900; }
+    .key-grid { display: grid; grid-template-columns: auto 1fr; gap: .55rem 1rem; font-size: var(--body-size); }
+    kbd { border: 2px solid var(--ink); border-radius: 8px; background: #fff; padding: .15rem .5rem; font-weight: 900; box-shadow: 2px 2px 0 var(--shadow); }
+
+    @media (max-width: 760px) {
+      :root { --slide-padding: clamp(.8rem, 4vw, 1.5rem); --gap: clamp(.38rem, 1.5vw, .72rem); --body-size: clamp(.69rem, 2.55vw, .95rem); --small-size: clamp(.58rem, 2vw, .78rem); }
+      .grid.three, .grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid.two { gap: .6rem; }
+      .timeline { grid-template-columns: repeat(2, 1fr); }
+      .card { padding: .65rem; border-radius: 14px; }
+      .window { padding: .85rem; border-radius: 20px; }
+      .slide::before { right: -18vw; top: -14vw; }
+      .slide::after { left: -12vw; bottom: -9vw; }
+      .nav-dots { display: none; }
+      .bar-row { grid-template-columns: 1fr 3fr; }
+      .compare > div { padding: .55rem; }
+      .mobile-hide { display: none !important; }
+    }
+    @media (max-height: 700px) {
+      :root { --slide-padding: clamp(.72rem, 3vw, 1.75rem); --gap: clamp(.32rem, 1.1vw, .65rem); --title-size: clamp(1.8rem, 5.2vw, 3.8rem); --h2-size: clamp(1.25rem, 3.2vw, 2.3rem); --body-size: clamp(.66rem, 1.25vw, .92rem); }
+      .card { padding: .65rem .8rem; }
+      .window { padding: .85rem 1rem; }
+      .window-bar { margin-bottom: .55rem; }
+      .lead { font-size: clamp(.76rem, 1.6vw, 1.05rem); }
+    }
+    @media (max-height: 600px) {
+      :root { --slide-padding: clamp(.55rem, 2.5vw, 1.2rem); --title-size: clamp(1.45rem, 4.5vw, 2.8rem); --h2-size: clamp(1.08rem, 2.8vw, 1.8rem); --body-size: clamp(.61rem, 1.08vw, .8rem); --small-size: clamp(.52rem, .85vw, .68rem); }
+      .decorative, .mobile-optional { display: none !important; }
+      .hud button { min-height: 30px; }
+      .prompt { padding: .6rem; line-height: 1.45; }
+    }
+    @media (max-height: 500px) {
+      :root { --slide-padding: clamp(.42rem, 2vw, .85rem); --gap: .28rem; --title-size: clamp(1.22rem, 4vw, 2rem); --h2-size: clamp(.95rem, 2.45vw, 1.45rem); --body-size: clamp(.56rem, .95vw, .72rem); }
+      .nav-dots, .keyboard-hint, .eyebrow { display: none; }
+      .slide::before, .slide::after { opacity: .35; }
+      .card { padding: .45rem .6rem; box-shadow: 3px 3px 0 var(--shadow); }
+      .window { box-shadow: 0 7px 0 var(--coral); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .15s !important; scroll-behavior: auto !important; }
+      .reveal { transform: none; }
+    }
+    @media print {
+      .hud, .nav-dots, .progress, .overlay { display: none !important; }
+      .slide { height: 100vh; break-after: page; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"></div>
+  <nav class="nav-dots" aria-label="投影片快速導覽"></nav>
+  <div class="hud" aria-label="簡報控制">
+    <span class="counter" aria-live="polite">1 / 22</span>
+    <button type="button" id="helpBtn" aria-label="開啟操作說明">H 說明</button>
+    <button type="button" id="notesBtn" aria-label="開啟講師備註">N 備註</button>
+    <button type="button" id="fullBtn" aria-label="進入全螢幕">⛶ 全螢幕</button>
+  </div>
+
+  <main id="deck">
+    <section class="slide" id="slide-1" data-title="封面" data-note="時間：1 分鐘。開場可問：如果今天只能帶走一個 AI 用法，你最希望是哪一個？說明今天不比較誰的工具最多，而是完成一件能用的成果。">
+      <div class="slide-content">
+        <div class="window reveal">
+          <div class="window-bar"><i></i><i></i><i></i></div>
+          <p class="eyebrow">AI × TEACHER LAB</p>
+          <h1>AI 教師<br>工作術<span class="cursor"></span></h1>
+          <p class="lead">60 分鐘完成備課、出題與簡報</p>
+          <div class="chips" style="margin-top:1rem"><span class="chip">統一教材</span><span class="chip">現場實作</span><span class="chip">成果帶回</span></div>
+        </div>
+      </div><span class="slide-no">01</span>
+    </section>
+
+    <section class="slide" id="slide-2" data-title="三項成果" data-note="時間：2 分鐘。請教師先選一項最想完成的成果。程度較新的教師只要完成一項即可，熟手再挑戰三項串接。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">TODAY'S OUTPUT</p><h2 class="reveal">今天要帶走的 3 項成果</h2>
+        <div class="grid three reveal">
+          <article class="card mint"><div class="num">01</div><h3>45 分鐘教學流程</h3><p>導入、閱讀、討論、評量與出口票。</p></article>
+          <article class="card yellow"><div class="num">02</div><h3>題目與解析</h3><p>規格先行，再用審題表逐題檢查。</p></article>
+          <article class="card blue"><div class="num">03</div><h3>8 頁簡報腳本</h3><p>每頁一個任務，不把講義全文貼上。</p></article>
+        </div>
+        <p class="lead reveal"><strong>新手：</strong>套用模板完成。　<strong>熟手：</strong>加入資料依據、限制條件與追問。</p>
+      </div><span class="slide-no">02</span>
+    </section>
+
+    <section class="slide" id="slide-3" data-title="課程地圖" data-note="時間：2 分鐘。快速預告課程節奏。提醒實作時間短，講師示範後立刻操作，不需要等所有人做完才前進。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">60 MINUTES</p><h2 class="reveal">今天的任務地圖</h2>
+        <div class="timeline reveal">
+          <div class="step"><div class="time">0–12 分</div><h3>選工具</h3><p>理解界線，找到合適入口。</p></div>
+          <div class="step"><div class="time">12–20 分</div><h3>寫清楚</h3><p>掌握提示詞五要素。</p></div>
+          <div class="step"><div class="time">20–53 分</div><h3>做成果</h3><p>備課、出題、簡報實作。</p></div>
+          <div class="step"><div class="time">53–60 分</div><h3>查核</h3><p>個資、安全與課後行動。</p></div>
+        </div>
+        <div class="flow reveal"><span class="flow-item">少講理論</span><span class="flow-arrow">→</span><span class="flow-item">立即操作</span><span class="flow-arrow">→</span><span class="flow-item">人工修訂</span></div>
+      </div><span class="slide-no">03</span>
+    </section>
+
+    <section class="slide" id="slide-4" data-title="AI 的界線" data-note="時間：3 分鐘。請參加者各說一個 AI 做得快、但仍需要教師負責的例子。強調 AI 是草稿助手，教師負責專業判斷。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">EXPECTATION</p><h2 class="reveal">AI 做得快，不代表可以直接用</h2>
+        <div class="grid two reveal">
+          <article class="card mint"><span class="pill">適合交給 AI</span><ul class="checklist" style="margin-top:.7rem"><li>整理與改寫草稿</li><li>產生多種活動方向</li><li>轉換格式與層次</li><li>協助找出遺漏問題</li></ul></article>
+          <article class="card coral"><span class="pill" style="background:var(--coral)">教師必須負責</span><ul class="checklist" style="margin-top:.7rem"><li>事實與答案查核</li><li>學習目標與難度</li><li>個資與著作權</li><li>是否適合真實班級</li></ul></article>
+        </div>
+        <p class="quote reveal" style="font-size:clamp(1.15rem,3vw,2.5rem)">AI 提供<em>草稿</em>，教師做出<em>決定</em>。</p>
+      </div><span class="slide-no">04</span>
+    </section>
+
+    <section class="slide" id="slide-5" data-title="四種工具" data-note="時間：4 分鐘。功能與額度會更新，這張不是排名表。用任務選工具：一般討論與資料整理、長文統整、Google 生態系、依指定來源回答。學校帳號功能可能受管理員限制。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">TOOL MAP</p><h2 class="reveal">四種工具，各有合適的工作</h2>
+        <div class="grid four reveal">
+          <article class="card coral"><h3>ChatGPT</h3><p>一般問答、文件與資料整理、持續性專案。</p></article>
+          <article class="card yellow"><h3>Claude</h3><p>長文改寫、文件統整、可反覆修改的內容。</p></article>
+          <article class="card blue"><h3>Gemini</h3><p>文件、試算表、圖片、影片與 Google 生態系。</p></article>
+          <article class="card mint"><h3>NotebookLM</h3><p>依指定來源問答、摘要、重點與音訊概覽。</p></article>
+        </div>
+        <p class="small muted reveal">功能、額度與校務帳號權限可能調整，請以官方頁面與校方設定為準。</p>
+      </div><span class="slide-no">05</span>
+    </section>
+
+    <section class="slide" id="slide-6" data-title="工具選擇法" data-note="時間：3 分鐘。讓參加者在心中選擇自己今天要用的主要工具與備用工具。若無法登入，就與鄰座共用操作或改用備用工具。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">30-SECOND CHOICE</p><h2 class="reveal">先看任務，再選工具</h2>
+        <div class="grid three reveal">
+          <article class="card yellow"><h3>從零討論或改寫</h3><p>先用一般對話型 AI。</p><div class="chips"><span class="chip">ChatGPT</span><span class="chip">Claude</span><span class="chip">Gemini</span></div></article>
+          <article class="card mint"><h3>多份指定教材</h3><p>重點是依來源回答與查核。</p><div class="chips"><span class="chip">NotebookLM</span><span class="chip">檔案功能</span></div></article>
+          <article class="card blue"><h3>持續性課程專案</h3><p>保存檔案、指令與對話脈絡。</p><div class="chips"><span class="chip">Projects</span><span class="chip">Knowledge</span></div></article>
+        </div>
+        <div class="prompt reveal"><strong>我的選擇：</strong>今天的主要工具是＿＿＿＿，如果不能使用，我的備用工具是＿＿＿＿。</div>
+      </div><span class="slide-no">06</span>
+    </section>
+
+    <section class="slide" id="slide-7" data-title="提示詞五要素" data-note="時間：4 分鐘。五要素不是固定順序，也不需要寫得很長。核心是讓 AI 知道誰、做什麼、依據什麼、不能做什麼、結果長什麼樣。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">PROMPT RECIPE</p><h2 class="reveal">提示詞的五個零件</h2>
+        <div class="grid five reveal" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+          <article class="card coral"><div class="num">1</div><h3>角色</h3><p>以誰的角度工作？</p></article>
+          <article class="card yellow"><div class="num">2</div><h3>任務</h3><p>要完成哪件事？</p></article>
+          <article class="card mint"><div class="num">3</div><h3>資料</h3><p>依據哪些內容？</p></article>
+          <article class="card blue"><div class="num">4</div><h3>限制</h3><p>對象、時間、禁用事項。</p></article>
+          <article class="card"><div class="num">5</div><h3>格式</h3><p>結果如何呈現？</p></article>
+        </div>
+        <div class="flow reveal"><span class="flow-item">需求說清楚</span><span class="flow-arrow">→</span><span class="flow-item">比較容易修訂</span></div>
+      </div><span class="slide-no">07</span>
+    </section>
+
+    <section class="slide" id="slide-8" data-title="提示詞比較" data-note="時間：3 分鐘。請教師觀察右側版本多了哪些條件。重點不是句子長，而是可以檢查：年級、時間、資料邊界、成果格式。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">BEFORE / AFTER</p><h2 class="reveal">同一句話，怎麼變清楚</h2>
+        <div class="compare reveal">
+          <div><strong>幫我備課。</strong></div><div>根據第 10～12 張資料，為八年級設計 45 分鐘課程，包含導入、資料判讀、討論與出口票。</div>
+          <div><strong>幫我出題。</strong></div><div>只根據教材，出 3 題選擇題與 2 題短答題，附答案、解析與資料依據。</div>
+          <div><strong>幫我做 PPT。</strong></div><div>整理成 8 頁簡報腳本，每頁列標題、畫面重點、教師說明與學生任務，不輸出程式碼。</div>
+        </div>
+        <p class="lead reveal">清楚的提示詞，讓你更容易判斷「哪裡需要改」。</p>
+      </div><span class="slide-no">08</span>
+    </section>
+
+    <section class="slide" id="slide-9" data-title="萬用提示詞" data-note="時間：3 分鐘。請參加者把方括號內容換成自己的情境。完整提示詞可在講義第 4 頁複製。若資料不足，要求 AI 指出缺少什麼。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">COPY & ADAPT</p><h2 class="reveal">萬用提示詞模板</h2>
+        <div class="prompt reveal">你是一位 <mark>［角色］</mark>。請根據我提供的 <mark>［資料］</mark>，完成 <mark>［任務］</mark>。對象是 <mark>［年級／身分］</mark>，時間為 <mark>［時間］</mark>。請遵守 <mark>［限制條件］</mark>，並用 <mark>［輸出格式］</mark> 呈現。若資料不足，請指出缺少什麼，不要自行補造事實。</div>
+        <div class="grid two reveal">
+          <article class="card mint"><h3>新手做法</h3><p>先複製整段，只換掉方括號。</p></article>
+          <article class="card yellow"><h3>熟手加碼</h3><p>加入資料依據、評量規準與修訂要求。</p></article>
+        </div>
+      </div><span class="slide-no">09</span>
+    </section>
+
+    <section class="slide" id="slide-10" data-title="議題導入" data-note="時間：2 分鐘。統一教材是研習用模擬情境，不代表真實學校。先讓教師選立場，再提醒課程不是要找唯一答案，而是練習用資料說明規範。">
+      <div class="slide-content">
+        <span class="pill reveal">研習用模擬情境</span>
+        <p class="quote reveal">校園手機管理，<br>要不要只有<em>禁止</em>？</p>
+        <div class="grid three reveal">
+          <article class="card coral"><h3>專注與秩序</h3><p>分心、偷拍、衝突與遊戲。</p></article>
+          <article class="card mint"><h3>學習與聯絡</h3><p>查資料、拍作業、實驗記錄、接送。</p></article>
+          <article class="card yellow"><h3>規範與責任</h3><p>何時能用？誰決定？違規怎麼修正？</p></article>
+        </div>
+      </div><span class="slide-no">10</span>
+    </section>
+
+    <section class="slide" id="slide-11" data-title="三方觀點" data-note="時間：3 分鐘。請教師找出三方共同擔心與不同需求。不要把任何一方簡化成支持或反對，要求學生用文章中的理由說明。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">STAKEHOLDERS</p><h2 class="reveal">同一支手機，三種位置</h2>
+        <div class="grid three reveal">
+          <article class="card blue"><div class="num">學生</div><p><strong>需要：</strong>查資料、記錄作業、聯絡家人。</p><p><strong>擔心：</strong>完全禁止忽略真實需求。</p></article>
+          <article class="card yellow"><div class="num">家長</div><p><strong>需要：</strong>專心學習，也能處理接送變化。</p><p><strong>擔心：</strong>緊急聯絡或管理失控。</p></article>
+          <article class="card mint"><div class="num">教師</div><p><strong>需要：</strong>可執行、可說明的課堂規範。</p><p><strong>擔心：</strong>分心、偷拍與網路衝突。</p></article>
+        </div>
+        <div class="prompt reveal"><strong>討論：</strong>哪一項規定可以同時回應兩方以上的需求？</div>
+      </div><span class="slide-no">11</span>
+    </section>
+
+    <section class="slide" id="slide-12" data-title="模擬統計" data-note="時間：3 分鐘。強調以下為工作坊練習用模擬數據。請先看每一列的樣本數，再比較三組對不同方案的偏好。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">SIMULATED DATA</p><h2 class="reveal">試行前意見調查</h2>
+        <div class="window reveal">
+          <div class="bar-chart">
+            <div class="bar-row"><div class="bar-label">學生 120 人</div><div class="bar-track"><div class="bar-seg seg-a" style="width:28%">28%</div><div class="bar-seg seg-b" style="width:52%">52%</div><div class="bar-seg seg-c" style="width:20%">20%</div></div></div>
+            <div class="bar-row"><div class="bar-label">家長 80 人</div><div class="bar-track"><div class="bar-seg seg-a" style="width:46%">46%</div><div class="bar-seg seg-b" style="width:41%">41%</div><div class="bar-seg seg-c" style="width:13%">13%</div></div></div>
+            <div class="bar-row"><div class="bar-label">教師 40 人</div><div class="bar-track"><div class="bar-seg seg-a" style="width:55%">55%</div><div class="bar-seg seg-b" style="width:38%">38%</div><div class="bar-seg seg-c" style="width:7%">7%</div></div></div>
+          </div>
+          <div class="legend" style="margin-top:1rem"><span>全程集中保管</span><span>教師指定時使用</span><span>下課與午休自由使用</span></div>
+        </div>
+        <p class="small muted reveal">以上為工作坊練習用模擬資料，不代表任何真實學校或研究結果。</p>
+      </div><span class="slide-no">12</span>
+    </section>
+
+    <section class="slide" id="slide-13" data-title="重新定義問題" data-note="時間：2 分鐘。帶出課程核心：從二選一爭論，轉向條件、決策權與修正機制。這也是讓 AI 產出更精準的方法。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">REFRAME</p><h2 class="reveal">把問題問對，答案才有用</h2>
+        <div class="flow reveal"><span class="flow-item">能不能帶？</span><span class="flow-arrow">→</span><span class="flow-item">哪些情境可以用？</span><span class="flow-arrow">→</span><span class="flow-item">誰決定？</span><span class="flow-arrow">→</span><span class="flow-item">如何修正？</span></div>
+        <div class="grid three reveal">
+          <article class="card coral"><h3>何時</h3><p>課堂、午休、考試、放學前。</p></article>
+          <article class="card mint"><h3>為何</h3><p>學習任務、緊急聯絡或個人娛樂。</p></article>
+          <article class="card yellow"><h3>如何</h3><p>取得同意、保護隱私、承擔後果。</p></article>
+        </div>
+      </div><span class="slide-no">13</span>
+    </section>
+
+    <section class="slide" id="slide-14" data-title="備課實作" data-note="時間：7 分鐘。先示範貼入教材，再貼提示詞。完整新手版提示詞在講義第 6 頁。提醒要求 AI 不要補造文章中沒有的研究結論。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">PRACTICE 01</p><h2 class="reveal">AI 協助備課</h2>
+        <div class="grid two reveal">
+          <div class="prompt"><strong>任務：</strong>只根據文章與統計表，為八年級設計 45 分鐘課程。包含導入、個人閱讀、統計判讀、小組討論、全班分享與出口票。</div>
+          <div class="card mint"><h3>輸出表格欄位</h3><div class="chips" style="margin-top:.7rem"><span class="chip">時間</span><span class="chip">學習目標</span><span class="chip">教師引導</span><span class="chip">學生任務</span><span class="chip">教材</span></div></div>
+        </div>
+        <div class="timeline reveal"><div class="step"><div class="time">1</div><h3>貼資料</h3></div><div class="step"><div class="time">2</div><h3>貼提示詞</h3></div><div class="step"><div class="time">3</div><h3>檢查時間</h3></div><div class="step"><div class="time">4</div><h3>修訂活動</h3></div></div>
+      </div><span class="slide-no">14</span>
+    </section>
+
+    <section class="slide" id="slide-15" data-title="備課檢核" data-note="時間：5 分鐘。新手完成基本版；熟手要求 AI 標記文章內容與教學建議、加入學生迷思與差異化。最後每人刪除或修改至少一處。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">CHECK & LEVEL UP</p><h2 class="reveal">生成之後，教師要做什麼</h2>
+        <div class="grid two reveal">
+          <article class="card yellow"><h3>成果檢核</h3><ul class="checklist"><li>總時間確實為 45 分鐘</li><li>學生需要閱讀、判讀或討論</li><li>問題能回到資料找到依據</li><li>結尾有出口票</li><li>沒有把模擬資料當真實研究</li></ul></article>
+          <article class="card blue"><h3>進階追問</h3><ul class="checklist"><li>活動對應學習目標</li><li>加入一個學生迷思</li><li>提供基礎與進階任務</li><li>標記教材內容與設計建議</li></ul></article>
+        </div>
+        <p class="quote reveal" style="font-size:clamp(1.05rem,2.6vw,2rem)">保留、修改、刪除，都要說得出<em>理由</em>。</p>
+      </div><span class="slide-no">15</span>
+    </section>
+
+    <section class="slide" id="slide-16" data-title="出題實作" data-note="時間：6 分鐘。完整提示詞在講義第 7 頁。先訂題型與資料邊界，再生成題目。要求 AI 附資料依據與常見錯誤。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">PRACTICE 02</p><h2 class="reveal">AI 協助出題</h2>
+        <div class="prompt reveal"><strong>只根據教材：</strong>設計 3 題四選一與 2 題短答題，附答案、逐題解析、資料依據與常見錯誤。選擇題只有一個最佳答案。</div>
+        <div class="grid five reveal" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+          <article class="card coral"><h3>文章理解</h3><p>1 題</p></article><article class="card yellow"><h3>統計判讀</h3><p>1 題</p></article><article class="card mint"><h3>觀點比較</h3><p>1 題</p></article><article class="card blue"><h3>證據運用</h3><p>短答 1 題</p></article><article class="card"><h3>規範設計</h3><p>短答 1 題</p></article>
+        </div>
+        <p class="lead reveal">出題不是按下生成，而是先訂規格，再逐題審查。</p>
+      </div><span class="slide-no">16</span>
+    </section>
+
+    <section class="slide" id="slide-17" data-title="審題檢核" data-note="時間：5 分鐘。讓教師挑一題實際作答。若不讀文章就能用常識答對，或答案無法由資料支持，就必須修訂。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">TEACHER REVIEW</p><h2 class="reveal">AI 出題後的六項檢查</h2>
+        <div class="grid three reveal">
+          <article class="card mint"><h3>對應目標</h3><p>真的在測本課要學的嗎？</p></article>
+          <article class="card yellow"><h3>資料支持</h3><p>答案能回到文章或圖表嗎？</p></article>
+          <article class="card blue"><h3>唯一答案</h3><p>是否只有一個最佳答案？</p></article>
+          <article class="card coral"><h3>合理誘答</h3><p>反映常見錯誤，不是故意刁難。</p></article>
+          <article class="card"><h3>題幹乾淨</h3><p>沒有不必要否定或答案線索。</p></article>
+          <article class="card mint"><h3>要求清楚</h3><p>短答題說明內容與作答方式。</p></article>
+        </div>
+        <div class="prompt reveal"><strong>最後一步：</strong>教師親自作答一次，再決定是否正式計分。</div>
+      </div><span class="slide-no">17</span>
+    </section>
+
+    <section class="slide" id="slide-18" data-title="簡報實作" data-note="時間：5 分鐘。強調先做頁面腳本，再交給簡報工具排版。若 AI 跳出程式碼，加入『只輸出頁面腳本，不要輸出程式碼』。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">PRACTICE 03</p><h2 class="reveal">AI 協助簡報</h2>
+        <div class="prompt reveal">把 45 分鐘課程整理成 <mark>8 頁教學簡報腳本</mark>。每頁列出：頁面標題、3 個畫面重點、建議視覺、教師口頭說明、學生要做的事。<strong>不要輸出程式碼。</strong></div>
+        <div class="grid three reveal">
+          <article class="card coral"><h3>一頁一任務</h3><p>每張投影片只做一件事。</p></article>
+          <article class="card mint"><h3>投影是提示</h3><p>不把講義整段貼上。</p></article>
+          <article class="card yellow"><h3>先腳本再排版</h3><p>降低內容失焦與版面跑掉。</p></article>
+        </div>
+      </div><span class="slide-no">18</span>
+    </section>
+
+    <section class="slide" id="slide-19" data-title="八頁簡報腳本" data-note="時間：2 分鐘。快速帶過八頁結構。熟手可再要求每頁字數上限、講稿與視覺規格。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">8-SLIDE STORYBOARD</p><h2 class="reveal">從引起動機走到出口票</h2>
+        <div class="grid four reveal">
+          <article class="card coral"><strong>1</strong> 情境導入</article><article class="card blue"><strong>2</strong> 文章閱讀</article><article class="card yellow"><strong>3</strong> 統計判讀</article><article class="card mint"><strong>4</strong> 找出爭點</article>
+          <article class="card mint"><strong>5</strong> 證據配對</article><article class="card yellow"><strong>6</strong> 小組提案</article><article class="card blue"><strong>7</strong> 全班檢核</article><article class="card coral"><strong>8</strong> 出口票</article>
+        </div>
+        <div class="flow reveal"><span class="flow-item">立場</span><span class="flow-arrow">＋</span><span class="flow-item">證據</span><span class="flow-arrow">＋</span><span class="flow-item">理由</span></div>
+      </div><span class="slide-no">19</span>
+    </section>
+
+    <section class="slide" id="slide-20" data-title="資料再利用" data-note="時間：3 分鐘。示範同一份已查核資料如何轉成家長通知、班會角色卡與行政摘要。缺少日期或電話時，要求保留請填入。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">REUSE WITH CARE</p><h2 class="reveal">同一份資料，換成不同工作</h2>
+        <div class="grid three reveal">
+          <article class="card coral"><h3>家長通知</h3><p>試行原因、使用時機、禁止情境、緊急聯絡與家長協助。</p></article>
+          <article class="card mint"><h3>班級討論</h3><p>學生、家長、教師與行政角色卡，共識紀錄表。</p></article>
+          <article class="card yellow"><h3>行政摘要</h3><p>現況、意見差異、方案、待決問題與後續資料。</p></article>
+        </div>
+        <div class="prompt reveal"><strong>防止亂編：</strong>缺少日期、姓名或聯絡方式時，保留 <mark>［請填入］</mark>。</div>
+      </div><span class="slide-no">20</span>
+    </section>
+
+    <section class="slide" id="slide-21" data-title="安全查核" data-note="時間：3 分鐘。提醒不要貼學生姓名、成績、家庭、醫療、特殊教育或輔導資料。正式使用前回到原始教材核對數字、答案、引文與時間。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">SAFETY CHECK</p><h2 class="reveal">交付前，先過五道檢查</h2>
+        <div class="grid five reveal" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+          <article class="card coral"><div class="num">1</div><h3>回原始資料</h3><p>核對人名、數字、引文與答案。</p></article>
+          <article class="card yellow"><div class="num">2</div><h3>找新增內容</h3><p>刪除、查證或標示為建議。</p></article>
+          <article class="card mint"><div class="num">3</div><h3>看現場</h3><p>語氣、難度、目標與時間。</p></article>
+          <article class="card blue"><div class="num">4</div><h3>護資料</h3><p>個資、校務機密與著作權。</p></article>
+          <article class="card"><div class="num">5</div><h3>親自試做</h3><p>教師先做，再交給學生。</p></article>
+        </div>
+        <div class="chips reveal"><span class="chip">AI 幻覺</span><span class="chip">個資外洩</span><span class="chip">著作權</span><span class="chip">偏誤</span><span class="chip">過度依賴</span></div>
+      </div><span class="slide-no">21</span>
+    </section>
+
+    <section class="slide" id="slide-22" data-title="課後行動" data-note="時間：2 分鐘。請每人選一份下週會用到的教材，套用提示詞完成一項成果，查核後存成自己的範本。最後邀請教師打開講義第 12 頁保存提示詞小抄。">
+      <div class="slide-content">
+        <p class="eyebrow reveal">NEXT 10 MINUTES</p><h2 class="reveal">課後不用再學一個工具</h2>
+        <p class="quote reveal">只要拿一份<em>下週要用的教材</em>，完成一項成果。</p>
+        <div class="grid three reveal">
+          <article class="card yellow"><div class="num">1</div><h3>選教材</h3><p>下週真的會用到。</p></article>
+          <article class="card mint"><div class="num">2</div><h3>套模板</h3><p>先完成備課、題目或簡報之一。</p></article>
+          <article class="card blue"><div class="num">3</div><h3>查核保存</h3><p>人工修訂，再存成自己的範本。</p></article>
+        </div>
+        <div class="flow reveal"><span class="flow-item">AI 產草稿</span><span class="flow-arrow">→</span><span class="flow-item">教師做決定</span><span class="flow-arrow">→</span><span class="flow-item">學生真正學會</span></div>
+      </div><span class="slide-no">22</span>
+    </section>
+  </main>
+
+  <div class="overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="overlay-panel"><div class="overlay-head"><h2 id="helpTitle" style="font-size:1.6rem">操作說明</h2><button class="close" type="button" aria-label="關閉操作說明">×</button></div>
+      <div class="key-grid"><kbd>← ↑</kbd><span>上一張</span><kbd>→ ↓ Space</kbd><span>下一張</span><kbd>Shift + Space</kbd><span>上一張</span><kbd>N</kbd><span>講師備註</span><kbd>H</kbd><span>操作說明</span><kbd>F</kbd><span>全螢幕</span><kbd>Esc</kbd><span>關閉面板或離開全螢幕</span></div>
+    </div>
+  </div>
+  <div class="overlay" id="notesOverlay" role="dialog" aria-modal="true" aria-labelledby="notesTitle">
+    <div class="overlay-panel"><div class="overlay-head"><h2 id="notesTitle" style="font-size:1.6rem">講師備註</h2><button class="close" type="button" aria-label="關閉講師備註">×</button></div><p id="notesText"></p></div>
+  </div>
+
+  <script>
+    /* =========================================================
+       簡報控制器：集中處理鍵盤、滾輪、觸控、導覽與備註。
+       ========================================================= */
+    class SlidePresentation {
+      constructor() {
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.current = 0;
+        this.wheelLocked = false;
+        this.touchStartY = 0;
+        this.progress = document.querySelector('.progress');
+        this.counter = document.querySelector('.counter');
+        this.nav = document.querySelector('.nav-dots');
+        this.help = document.querySelector('#helpOverlay');
+        this.notes = document.querySelector('#notesOverlay');
+        this.notesText = document.querySelector('#notesText');
+        this.createDots();
+        this.bindEvents();
+        this.observeSlides();
+        this.goTo(this.indexFromHash(), false);
+      }
+
+      createDots() {
+        this.slides.forEach((slide, index) => {
+          const button = document.createElement('button');
+          button.className = 'nav-dot';
+          button.type = 'button';
+          button.setAttribute('aria-label', `前往第 ${index + 1} 張：${slide.dataset.title}`);
+          button.addEventListener('click', () => this.goTo(index));
+          this.nav.appendChild(button);
+        });
+        this.dots = [...this.nav.children];
+      }
+
+      bindEvents() {
+        window.addEventListener('keydown', (event) => this.onKey(event));
+        window.addEventListener('wheel', (event) => this.onWheel(event), { passive: false });
+        window.addEventListener('touchstart', (event) => { this.touchStartY = event.changedTouches[0].clientY; }, { passive: true });
+        window.addEventListener('touchend', (event) => {
+          const delta = this.touchStartY - event.changedTouches[0].clientY;
+          if (Math.abs(delta) > 45) this.goTo(this.current + (delta > 0 ? 1 : -1));
+        }, { passive: true });
+        window.addEventListener('hashchange', () => this.goTo(this.indexFromHash(), false));
+        document.querySelector('#helpBtn').addEventListener('click', () => this.toggleOverlay(this.help));
+        document.querySelector('#notesBtn').addEventListener('click', () => this.showNotes());
+        document.querySelector('#fullBtn').addEventListener('click', () => this.toggleFullscreen());
+        document.querySelectorAll('.overlay .close').forEach(btn => btn.addEventListener('click', () => btn.closest('.overlay').classList.remove('open')));
+        document.querySelectorAll('.overlay').forEach(overlay => overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); }));
+      }
+
+      observeSlides() {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting || entry.intersectionRatio < .55) return;
+            const index = this.slides.indexOf(entry.target);
+            this.current = index;
+            entry.target.classList.add('visible');
+            this.updateUI();
+          });
+        }, { threshold: [.55] });
+        this.slides.forEach(slide => observer.observe(slide));
+      }
+
+      indexFromHash() {
+        const match = location.hash.match(/slide-(\d+)/);
+        return match ? Math.min(this.slides.length - 1, Math.max(0, Number(match[1]) - 1)) : 0;
+      }
+
+      goTo(index, smooth = true) {
+        const next = Math.min(this.slides.length - 1, Math.max(0, index));
+        this.current = next;
+        this.slides[next].scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+        history.replaceState(null, '', `#slide-${next + 1}`);
+        this.slides[next].classList.add('visible');
+        this.updateUI();
+      }
+
+      updateUI() {
+        const value = ((this.current + 1) / this.slides.length) * 100;
+        this.progress.style.width = `${value}%`;
+        this.counter.textContent = `${this.current + 1} / ${this.slides.length}`;
+        this.dots.forEach((dot, index) => dot.classList.toggle('active', index === this.current));
+        document.title = `${this.slides[this.current].dataset.title}｜AI 教師工作術`;
+      }
+
+      onKey(event) {
+        if (event.key === 'Escape') { this.help.classList.remove('open'); this.notes.classList.remove('open'); return; }
+        if (document.querySelector('.overlay.open')) return;
+        const key = event.key.toLowerCase();
+        if (['arrowright', 'arrowdown', ' '].includes(key) && !event.shiftKey) { event.preventDefault(); this.goTo(this.current + 1); }
+        if (['arrowleft', 'arrowup'].includes(key) || (key === ' ' && event.shiftKey)) { event.preventDefault(); this.goTo(this.current - 1); }
+        if (key === 'h') this.toggleOverlay(this.help);
+        if (key === 'n') this.showNotes();
+        if (key === 'f') this.toggleFullscreen();
+        if (key === 'home') this.goTo(0);
+        if (key === 'end') this.goTo(this.slides.length - 1);
+      }
+
+      onWheel(event) {
+        if (document.querySelector('.overlay.open')) return;
+        event.preventDefault();
+        if (this.wheelLocked || Math.abs(event.deltaY) < 18) return;
+        this.wheelLocked = true;
+        this.goTo(this.current + (event.deltaY > 0 ? 1 : -1));
+        setTimeout(() => { this.wheelLocked = false; }, 650);
+      }
+
+      toggleOverlay(overlay) { overlay.classList.toggle('open'); }
+      showNotes() {
+        this.notesText.textContent = this.slides[this.current].dataset.note || '這張投影片沒有備註。';
+        this.notes.classList.add('open');
+      }
+      toggleFullscreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      }
+    }
+
+    new SlidePresentation();
+  </script>
+</body>
+</html>
